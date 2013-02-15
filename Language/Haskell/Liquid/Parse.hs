@@ -43,6 +43,7 @@ bareTypeP
   =  try bareFunP
  <|> bareAllP
  <|> bareAllExprP
+ <|> bareExistsP
  <|> bareAtomP 
  
 bareArgP 
@@ -86,6 +87,13 @@ bareAllExprP
        dot
        t  <- bareTypeP
        return $ foldr (uncurry RAllE) t zs
+ 
+bareExistsP 
+  = do reserved "exists"
+       zs <- brackets $ sepBy1 exBindP comma 
+       dot
+       t  <- bareTypeP
+       return $ foldr (uncurry REx) t zs
      
 exBindP 
   = xyP binderP colon bareTypeP 
