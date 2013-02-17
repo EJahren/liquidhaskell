@@ -150,11 +150,11 @@ unifyS (RApp c ts rs r) (RApp _ pts ps p)
         getR (RMono r) = r
         getR (RPoly _) = top 
 
-unifyS (RAllE x tx t) (RAllE x' _ t') | x == x'
-  = liftM (RAllE x tx) (unifyS t t')
+unifyS (RAllE x tx t) (RAllE x' tx' t') | x == x'
+  = liftM2 (RAllE x) (unifyS tx tx') (unifyS t t')
 
-unifyS (REx x tx t) (REx x' _ t') | x == x'
-  = liftM (REx x tx) (unifyS t t')
+unifyS (REx x tx t) (REx x' tx' t') | x == x'
+  = liftM2 (REx x) (unifyS tx tx') (unifyS t t')
 
 unifyS t1 t2                
   = error ("unifyS" ++ show t1 ++ " with " ++ show t2)
@@ -206,7 +206,7 @@ toPredType (PV _ ptype args) = rpredType (ty:tys)
 -------------------------------------------------------------------------------
 
 replacePreds :: String -> SpecType -> [(RPVar, Ref RReft SpecType)] -> SpecType 
-replacePreds msg       = foldl' go 
+replacePreds msg           = foldl' go
    where go z (π, RPoly t) = substPred msg   (π, t)     z
          go _ (_, RMono _) = error "replacePreds on RMono" -- replacePVarReft (π, r) <$> z
 
@@ -251,6 +251,7 @@ substPred msg su@(π, πt) (RFun x t t' r)
 substPred msg pt (RCls c ts)    = RCls c (substPred msg pt <$> ts)
 
 substPred msg su (RAllE x t t') = RAllE x (substPred msg su t) (substPred msg su t')
+substPred msg su (REx x t t')   = REx   x (substPred msg su t) (substPred msg su t')
 
 substPred _   _  t            = t
 

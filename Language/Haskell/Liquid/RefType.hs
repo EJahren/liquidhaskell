@@ -127,6 +127,9 @@ instance Fixpoint FReft where
   toFix (FReft r)       = toFix r
   toFix (FSReft s r)    = text "\\" <+> toFix s <+> text "->" <+> toFix r
  
+instance Show FReft where
+  show = render . toFix
+
 instance Show Predicate where
   show = render . toFix 
 
